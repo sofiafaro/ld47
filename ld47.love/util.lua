@@ -33,7 +33,7 @@ function make_quads(image)
         quads[y] = {}
         for x = 1, num_tiles_x do
             quads[y][x] = love.graphics.newQuad(
-                x*SPRITE_W, y*SPRITE_H,
+                (x-1)*SPRITE_W, (y-1)*SPRITE_H,
                 SPRITE_W, SPRITE_H,
                 image_w, image_h
             )
