@@ -12,7 +12,7 @@ SPRITE_W = 16
 SPRITE_H = 16
 SCALE = 3
 
-STEP_TIME = 0.25
+STEP_TIME = 0.2
 PLAYER_STEP_TIME = 0.15
 
 -- directions
@@ -95,6 +95,7 @@ C_FLOOR_EVEN = {32/255, 214/255, 199/255}
 -- level data
 LEVEL_DATA = {
     {
+        title = "WELCOME TO THE CHEESE",
         w = 5,
         h = 5,
         cells = {
@@ -107,14 +108,27 @@ LEVEL_DATA = {
     },
 
     {
-        w=8,
+        title = "POLARITY",
+        w=9,
         h=5,
         cells = {
-            {L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_CHEESE},
-            {L_WALL, nil, nil, L_MOUSE_NORTH, L_WALL, L_MOUSE_NORTH, nil, nil},
-            {L_DOOR, nil, nil, nil, L_PLAYER, nil, nil, nil},
-            {L_WALL, L_MOUSE_SOUTH, nil, nil, L_WALL, nil, nil, L_MOUSE_SOUTH},
-            {L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_CHEESE, L_WALL, L_WALL},
+            {L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_CHEESE, L_WALL},
+            {L_WALL, nil, nil, L_MOUSE_SOUTH, L_WALL, L_MOUSE_NORTH, nil, nil, L_WALL},
+            {L_DOOR, nil, nil, nil, L_PLAYER, nil, nil, nil, L_WALL},
+            {L_WALL, L_MOUSE_NORTH, nil, nil, L_WALL, nil, nil, L_MOUSE_SOUTH, L_WALL},
+            {L_WALL, L_CHEESE, L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_WALL},
         },
-    }
+    },
+
+    {
+        title = "PRESS SHIFT",
+        w=9,
+        h=3,
+        cells = {
+            {nil, nil, nil, L_WALL, L_CHEESE, L_WALL, nil, nil, nil},
+            {L_MOUSE_NORTH, nil, nil, nil, L_PLAYER, nil, nil, nil, L_MOUSE_SOUTH},
+            {nil, nil, nil, L_WALL, L_DOOR, L_WALL, nil, nil, nil},
+        },
+    },
+
 }

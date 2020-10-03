@@ -67,3 +67,7 @@ function clone(t)
         return t
     end
 end
+
+function round(x)
+    return math.floor(x + 0.5)
+end
