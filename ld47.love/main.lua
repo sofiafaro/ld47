@@ -27,6 +27,7 @@ function load_level(level_num)
     TIMER = STEP_TIME
     MICE = {}
     PLAYER = nil
+    ARROW = nil
 
     for y = 1, STATE.h do
         local row = STATE.cells[y]
@@ -53,6 +54,16 @@ function can_move(x,y,d)
 end
 
 function love.update(dt)
+    if KEYPRESS['r'] then
+        load_level(LEVEL)
+    elseif KEYPRESS['n'] then
+        local nl = clamp(LEVEL+1, 1, #(LEVEL_DATA))
+        load_level(nl)
+    elseif KEYPRESS['p'] then
+        local nl = clamp(LEVEL-1, 1, #(LEVEL_DATA))
+        load_level(nl)
+    end
+
     local player_d = PLAYER.buffered
     local player_d2 = nil
     for k,d in pairs(MOVE_KEYS) do
@@ -62,6 +73,10 @@ function love.update(dt)
         if KEYSTATE[k] then
             player_d2 = d
         end
+    end
+
+    if KEYPRESS['lshift'] or KEYPRESS['rshift'] then
+        PLAYER.arrow_buf = true
     end
 
     if PLAYER.cooldown > dt then
@@ -75,6 +90,11 @@ function love.update(dt)
         local py = PLAYER.y
         local nx = clamp(PLAYER.x + dx, 1, STATE.w)
         local ny = clamp(PLAYER.y + dy, 1, STATE.h)
+        if PLAYER.arrow_buf then
+            ARROW = {x=px, y=py, dir=player_d}
+            PLAYER.arrow_buf = false
+        end
+
         if not STATE.cells[ny][nx] then
             STATE.cells[py][px] = nil
             STATE.cells[ny][nx] = PLAYER.cell
@@ -96,9 +116,13 @@ function love.update(dt)
         for imouse, mouse in ipairs(MICE) do
             local mx = mouse.x
             local my = mouse.y
+            local md = mouse.cell.dir
+            if ARROW and ARROW.x == mx and ARROW.y == my then
+                md = ARROW.dir
+            end
             local mdone = false
             for irot, rot in ipairs(ROT_ORDER) do
-                local nd = rot[mouse.cell.dir]
+                local nd = rot[md]
                 local dx = OFFSET_X[nd]
                 local dy = OFFSET_Y[nd]
                 local nx = clamp(mx + dx, 1, STATE.w)
@@ -175,6 +199,10 @@ function love.draw()
         end
     end
     love.graphics.setColor(C_WHITE)
+
+    if ARROW then
+        draw_sprite(S_ARROW, ARROW.dir, ARROW.x, ARROW.y)
+    end
 
     for tx = 1, grid_w do
         for ty = 1, grid_h do

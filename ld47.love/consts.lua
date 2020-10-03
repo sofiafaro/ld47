@@ -12,7 +12,7 @@ SPRITE_W = 16
 SPRITE_H = 16
 SCALE = 3
 
-STEP_TIME = 0.2
+STEP_TIME = 0.25
 PLAYER_STEP_TIME = 0.15
 
 -- directions
@@ -105,4 +105,16 @@ LEVEL_DATA = {
             {nil, nil, nil, nil, nil},
         },
     },
+
+    {
+        w=8,
+        h=5,
+        cells = {
+            {L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_CHEESE},
+            {L_WALL, nil, nil, L_MOUSE_NORTH, L_WALL, L_MOUSE_NORTH, nil, nil},
+            {L_DOOR, nil, nil, nil, L_PLAYER, nil, nil, nil},
+            {L_WALL, L_MOUSE_SOUTH, nil, nil, L_WALL, nil, nil, L_MOUSE_SOUTH},
+            {L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, L_CHEESE, L_WALL, L_WALL},
+        },
+    }
 }
