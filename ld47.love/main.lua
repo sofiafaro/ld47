@@ -30,6 +30,7 @@ function load_level(level_num)
     LEVEL = level_num
     STATE = clone(LEVEL_DATA[LEVEL])
     TIMER = STEP_TIME
+    TICKS = 0
     MICE = {}
     PLAYER = nil
     ARROW = nil
@@ -64,6 +65,8 @@ function load_level(level_num)
 end
 
 function love.update(dt)
+    TICKS = TICKS + dt
+
     if KEYPRESS['r'] then
         load_level(LEVEL)
     elseif KEYPRESS['n'] then
@@ -113,18 +116,23 @@ function love.update(dt)
             PLAYER.x = nx
             PLAYER.y = ny
             PLAYER.cell.dir = player_d
+            PLAYER.cell.moved = true
+            PLAYER.cooldown = PLAYER.cooldown + PLAYER_STEP_TIME - dt
         elseif STATE.cells[ny][nx].kind == K_DOOR and #(MICE) == 0 then
             load_level(LEVEL+1)
             PLAYER.cooldown = PLAYER_LEVEL_COOLDOWN
-            PLAYER.buffered = nil
+            PLAYER.cell.moved = false
             return
+        else
+            PLAYER.cell.moved = false
+            PLAYER.cooldown = 0
         end
 
         PLAYER.buffered = nil
-        PLAYER.cooldown = PLAYER.cooldown + PLAYER_STEP_TIME - dt
     else
         PLAYER.buffered = nil
         PLAYER.cooldown = 0
+        PLAYER.cell.moved = false
     end
 
     TIMER = TIMER - dt
@@ -234,13 +242,21 @@ function love.draw()
             local t = STATE.cells[ty][tx]
             if t then
                 if t.sprite then
-                    local atx, aty = tx, ty
+                    local ats, atx, aty = t.sprite, tx, ty
                     if t.moved then
                         local f = TIMER / STEP_TIME
+                        if t.kind == K_PLAYER then
+                            f = PLAYER.cooldown / PLAYER_STEP_TIME
+                            local o = {[0]=1,[1]=0,[2]=2,[3]=0}
+                            local b = o [math.floor(TICKS*2 / ANIMATION_FRAME) % 4]
+                            ats = ats + b
+                        else
+                            ats = ats + math.floor(TICKS / ANIMATION_FRAME) % 2
+                        end
                         atx = tx - OFFSET_X[t.dir] * f
                         aty = ty - OFFSET_Y[t.dir] * f
                     end
-                    draw_sprite(t.sprite, t.dir, atx, aty)
+                    draw_sprite(ats, t.dir, atx, aty)
                 elseif t.tile then
                     draw_tile(t.tile, tx, ty)
                 end
