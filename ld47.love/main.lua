@@ -115,7 +115,7 @@ function love.update(dt)
             PLAYER.cell.dir = player_d
         elseif STATE.cells[ny][nx].kind == K_DOOR and #(MICE) == 0 then
             load_level(LEVEL+1)
-            PLAYER.cooldown = 1.0
+            PLAYER.cooldown = PLAYER_LEVEL_COOLDOWN
             PLAYER.buffered = nil
             return
         end
