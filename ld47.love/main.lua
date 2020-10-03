@@ -32,6 +32,7 @@ function load_level(level_num)
     TIMER = STEP_TIME
     TICKS = 0
     MICE = {}
+    ANIM_CHEESES = {}
     PLAYER = nil
     ARROW = nil
     DOOR = nil
@@ -62,6 +63,8 @@ function load_level(level_num)
     if not DOOR then
         love.system.error("door not found on level " .. LEVEL)
     end
+
+    PLAYER.cooldown = PLAYER_LEVEL_COOLDOWN
 end
 
 function love.update(dt)
@@ -96,6 +99,9 @@ function love.update(dt)
     if PLAYER.cooldown > dt then
         PLAYER.buffered = player_d
         PLAYER.cooldown = PLAYER.cooldown - dt
+    elseif PLAYER.x == DOOR.x and PLAYER.y == DOOR.y then
+        load_level(LEVEL+1)
+        return
     elseif player_d or player_d2 then
         player_d = player_d or player_d2
         local dx = OFFSET_X[player_d]
@@ -119,10 +125,13 @@ function love.update(dt)
             PLAYER.cell.moved = true
             PLAYER.cooldown = PLAYER.cooldown + PLAYER_STEP_TIME - dt
         elseif STATE.cells[ny][nx].kind == K_DOOR and #(MICE) == 0 then
-            load_level(LEVEL+1)
-            PLAYER.cooldown = PLAYER_LEVEL_COOLDOWN
-            PLAYER.cell.moved = false
-            return
+            STATE.cells[py][px] = nil
+            STATE.cells[ny][nx].sprite = S_PLAYER_STAND
+            STATE.cells[ny][nx].dir = player_d
+            STATE.cells[ny][nx].moved = true
+            PLAYER.cooldown = PLAYER.cooldown + PLAYER_STEP_TIME - dt
+            PLAYER.x = nx
+            PLAYER.y = ny
         else
             PLAYER.cell.moved = false
             PLAYER.cooldown = 0
@@ -136,6 +145,20 @@ function love.update(dt)
     end
 
     TIMER = TIMER - dt
+    if TIMER + dt > STEP_TIME/3 and TIMER <= STEP_TIME/3 then
+        for icheese, cheese in ipairs(ANIM_CHEESES) do
+            if cheese.mice == 2 then
+                cheese.tile = T_CHEESE_BOTH
+            else
+                cheese.tile = T_CHEESE_HALF[cheese.dir]
+            end
+            cheese.sprite = nil
+            cheese.moved = nil
+            cheese.dir = nil
+        end
+        ANIM_CHEESES = {}
+    end
+
     if TIMER <= 0 then
         TIMER = TIMER + STEP_TIME
         local new_mice = {}
@@ -167,13 +190,11 @@ function love.update(dt)
                     elseif ncell.kind == K_CHEESE and (ncell.mice or 0) < 2 then
                         STATE.cells[my][mx] = nil
                         ncell.mice = (ncell.mice or 0) + 1
-                        if ncell.mice == 2 then
-                            ncell.tile = T_CHEESE_BOTH
-                        else
-                            ncell.tile = T_CHEESE_HALF[nd]
-                        end
+                        ncell.sprite = S_MOUSE1
+                        ncell.dir = nd
+                        ncell.moved = true
+                        table.insert(ANIM_CHEESES, ncell)
                         mdone = true
-                        mouse.cell.moved = true
                         break
                     end
                 end
@@ -241,11 +262,15 @@ function love.draw()
         for ty = 1, grid_h do
             local t = STATE.cells[ty][tx]
             if t then
+                if t.tile then
+                    draw_tile(t.tile, tx, ty)
+                end
                 if t.sprite then
-                    local ats, atx, aty = t.sprite, tx, ty
+                    local ats = t.sprite
+                    local atx, aty = tx, ty
                     if t.moved then
                         local f = TIMER / STEP_TIME
-                        if t.kind == K_PLAYER then
+                        if t.kind == K_PLAYER or t.kind == K_DOOR then
                             f = PLAYER.cooldown / PLAYER_STEP_TIME
                             local o = {[0]=1,[1]=0,[2]=2,[3]=0}
                             local b = o [math.floor(TICKS*2 / ANIMATION_FRAME) % 4]
@@ -257,8 +282,6 @@ function love.draw()
                         aty = ty - OFFSET_Y[t.dir] * f
                     end
                     draw_sprite(ats, t.dir, atx, aty)
-                elseif t.tile then
-                    draw_tile(t.tile, tx, ty)
                 end
             end
         end
