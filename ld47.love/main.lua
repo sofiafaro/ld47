@@ -9,42 +9,19 @@ function love.load()
     KEYSTATE = {}
     KEYPRESS = {}
 
-    PLAYER_IMG = load_image(PLAYER_PATH)
-    PLAYER = {
-        img = PLAYER_IMG,
-        x = 10,
-        y = 20,
-    }
-    PLAYER_W, PLAYER_H = PLAYER_IMG:getDimensions()
-    PLAYER_W = PLAYER_W * SCALE
-    PLAYER_H = PLAYER_H * SCALE
+    SPRITES_IMG = load_image(SPRITES_PATH)
+    SPRITES_QUADS = make_quads(SPRITES_IMG)
 
-    FG_IMGS = load_images(FG_PATHS)
-    BG_IMGS = load_images(BG_PATHS)
+    TILES_IMG = load_image(TILES_PATH)
+    TILES_QUADS = make_quads(TILES_IMG)
 end
 
 function love.update(dt)
-    if KEYSTATE[RIGHT] and not KEYSTATE[LEFT] then
-        PLAYER.xspeed = PLAYER_XSPEED
-        PLAYER.flipped = false
-    elseif KEYSTATE[LEFT] and not KEYSTATE[RIGHT] then
-        PLAYER.xspeed = -PLAYER_XSPEED
-        PLAYER.flipped = true
-    else
-        PLAYER.xspeed = 0
-    end
-    PLAYER.x = PLAYER.x + PLAYER.xspeed * dt
-    PLAYER.x = clamp(PLAYER.x, 0, WINDOW_W - PLAYER_W)
-
     KEYPRESS = {}
 end
 
 function love.draw()
     love.graphics.clear()
-    love.graphics.draw(BG_IMGS[1], 0, 0, 0, SCALE_LEVEL, SCALE_LEVEL)
-    love.graphics.draw(FG_IMGS[1], 0, 0, 0, SCALE_LEVEL, SCALE_LEVEL)
-    draw_sprite(PLAYER)
-
 end
 
 function love.keypressed(key)

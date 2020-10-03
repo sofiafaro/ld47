@@ -24,6 +24,24 @@ function load_images(paths)
     return map(load_image, paths)
 end
 
+function make_quads(image)
+    local image_w, image_h = image:getDimensions()
+    local num_tiles_x = math.floor(image_w / SPRITE_W)
+    local num_tiles_y = math.floor(image_h / SPRITE_H)
+    local quads = {}
+    for y = 1, num_tiles_y do
+        quads[y] = {}
+        for x = 1, num_tiles_x do
+            quads[y][x] = love.graphics.newQuad(
+                x*SPRITE_W, y*SPRITE_H,
+                SPRITE_W, SPRITE_H,
+                image_w, image_h
+            )
+        end
+    end
+    return quads
+end
+
 function draw_sprite(data)
     local img = data.img
     local flipped = data.flipped or false

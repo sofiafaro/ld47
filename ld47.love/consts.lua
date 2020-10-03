@@ -1,15 +1,36 @@
 
-SCALE = 6
-SCALE_LEVEL = 8
+SCALE = 4
+
 WINDOW_W = 640
 WINDOW_H = 360
 WINDOW_TITLE = 'LD47 - stuck in a loop'
 
-FG_PATHS = { 'img/level1fg.png' }
-BG_PATHS = { 'img/level1bg.png' }
+SPRITES_PATH = 'img/sprites.png'
+TILES_PATH = 'img/tiles.png'
 
-PLAYER_PATH = 'img/player.png'
-PLAYER_XSPEED = 300
+SPRITE_W = 16
+SPRITE_H = 16
 
-RIGHT = 'right'
-LEFT = 'left'
+-- directions
+NORTH = 1
+EAST = 2
+SOUTH = 3
+WEST = 4
+
+-- sprites
+WALL = 1
+ARROW = 2
+MOUSE1 = 3
+MOUSE2 = 4
+PLAYER_STAND = 5
+PLAYER_WALK1 = 6
+PLAYER_WALK2 = 7
+
+-- tiles
+DOOR_CLOSED = {1,1}
+DOOR_OPEN = {1,2}
+CRATE = {1,3}
+CHEESE_NONE = {2,1}
+CHEESE_BOTTOM = {2,2}
+CHEESE_TOP = {2,3}
+CHEESE_BOTH = {2,4}
