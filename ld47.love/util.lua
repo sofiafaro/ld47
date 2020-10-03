@@ -55,3 +55,15 @@ function draw_sprite(data)
     end
     love.graphics.draw(img, x, y, r or 0, sign * SCALE, SCALE)
 end
+
+function clone(t)
+    if type(t) == 'table' then
+        local t2 = {}
+        for k,v in pairs(t) do
+            t2[k] = clone(v)
+        end
+        return t2
+    else
+        return t
+    end
+end

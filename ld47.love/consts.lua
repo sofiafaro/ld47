@@ -12,11 +12,24 @@ SPRITE_W = 16
 SPRITE_H = 16
 SCALE = 3
 
+STEP_TIME = 0.2
+PLAYER_STEP_TIME = 0.15
+
 -- directions
 D_NORTH = 1
 D_EAST = 2
 D_SOUTH = 3
 D_WEST = 4
+
+MOVE_KEYS = { up = D_NORTH, right = D_EAST, down = D_SOUTH, left = D_WEST }
+OFFSET_X = { [D_NORTH] = 0, [D_EAST] = 1, [D_SOUTH] = 0, [D_WEST] = -1 }
+OFFSET_Y = { [D_NORTH] = -1, [D_EAST] = 0, [D_SOUTH] = 1, [D_WEST] = 0 }
+
+ROT_0   = { [D_NORTH] = D_NORTH, [D_EAST] = D_EAST,  [D_SOUTH] = D_SOUTH, [D_WEST] = D_WEST  }
+ROT_90  = { [D_NORTH] = D_EAST,  [D_EAST] = D_SOUTH, [D_SOUTH] = D_WEST,  [D_WEST] = D_NORTH }
+ROT_180 = { [D_NORTH] = D_SOUTH, [D_EAST] = D_WEST,  [D_SOUTH] = D_NORTH, [D_WEST] = D_EAST  }
+ROT_270 = { [D_NORTH] = D_WEST,  [D_EAST] = D_NORTH, [D_SOUTH] = D_EAST,  [D_WEST] = D_SOUTH }
+ROT_ORDER = { ROT_0, ROT_90, ROT_270, ROT_180 }
 
 -- sprites
 S_WALL = 1
@@ -36,6 +49,10 @@ T_CHEESE_NONE = {2,1}
 T_CHEESE_BOTTOM = {2,2}
 T_CHEESE_TOP = {2,3}
 T_CHEESE_BOTH = {2,4}
+T_CHEESE_HALF = {
+    [D_NORTH] = T_CHEESE_BOTTOM, [D_EAST] = T_CHEESE_BOTTOM,
+    [D_SOUTH] = T_CHEESE_TOP, [D_WEST] = T_CHEESE_TOP
+}
 
 -- logical kind
 K_DOOR = 'door'
