@@ -22,12 +22,19 @@ function love.load()
 end
 
 function load_level(level_num)
+    if level_num > #(LEVEL_DATA) then
+        GAME_DONE = true
+        level_num = 1
+    end
+
     LEVEL = level_num
     STATE = clone(LEVEL_DATA[LEVEL])
     TIMER = STEP_TIME
     MICE = {}
     PLAYER = nil
     ARROW = nil
+    DOOR = nil
+    PASSIVE_KEY_ENABLED = false
 
     for y = 1, STATE.h do
         local row = STATE.cells[y]
@@ -36,6 +43,8 @@ function load_level(level_num)
             if cell then
                 if cell.kind == K_PLAYER then
                     PLAYER = { x=x, y=y, cell=cell, cooldown=0 }
+                elseif cell.kind == K_DOOR then
+                    DOOR = { x=x, y=y, cell=cell }
                 elseif cell.kind == K_MOUSE then
                     local mouse = { x=x, y=y, cell=cell }
                     table.insert(MICE, mouse)
@@ -47,10 +56,9 @@ function load_level(level_num)
     if not PLAYER then
         love.system.error("player not found on level " .. LEVEL)
     end
-end
-
-function can_move(x,y,d)
-
+    if not DOOR then
+        love.system.error("door not found on level " .. LEVEL)
+    end
 end
 
 function love.update(dt)
@@ -69,8 +77,9 @@ function love.update(dt)
     for k,d in pairs(MOVE_KEYS) do
         if KEYPRESS[k] then
             player_d = d
+            PASSIVE_KEY_ENABLED = true
         end
-        if KEYSTATE[k] then
+        if KEYSTATE[k] and PASSIVE_KEY_ENABLED then
             player_d2 = d
         end
     end
@@ -90,6 +99,7 @@ function love.update(dt)
         local py = PLAYER.y
         local nx = clamp(PLAYER.x + dx, 1, STATE.w)
         local ny = clamp(PLAYER.y + dy, 1, STATE.h)
+
         if PLAYER.arrow_buf then
             ARROW = {x=px, y=py, dir=player_d}
             PLAYER.arrow_buf = false
@@ -101,7 +111,12 @@ function love.update(dt)
             PLAYER.x = nx
             PLAYER.y = ny
             PLAYER.cell.dir = player_d
+        elseif STATE.cells[ny][nx].kind == K_DOOR and #(MICE) == 0 then
+            load_level(LEVEL+1)
+            PLAYER.cooldown = 1.0
+            return
         end
+
         PLAYER.buffered = nil
         PLAYER.cooldown = PLAYER.cooldown + PLAYER_STEP_TIME
     else
@@ -157,6 +172,10 @@ function love.update(dt)
     end
 
     KEYPRESS = {}
+
+    if #(MICE) == 0 then
+        DOOR.cell.tile = T_DOOR_OPEN
+    end
 end
 
 function love.draw()
