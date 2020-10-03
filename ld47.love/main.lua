@@ -35,7 +35,7 @@ function load_level(level_num)
     ARROW = nil
     DOOR = nil
     KEYSTATE = {}
-    KEYPRESSED = {}
+    KEYPRESS = {}
     PASSIVE_KEY_ENABLED = false
 
     for y = 1, STATE.h do
