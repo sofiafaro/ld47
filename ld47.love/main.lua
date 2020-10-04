@@ -71,6 +71,15 @@ function load_level(level_num)
     PLAYER.cooldown = PLAYER_LEVEL_COOLDOWN
 end
 
+function is_walkable(x, y)
+    if 1 <= x and x <= STATE.w and 1 <= y and y <= STATE.h then
+        local cell = STATE.cells[y][x]
+        return (not cell) or cell.walkable
+    else
+        return false
+    end
+end
+
 function love.update(dt)
     TICKS = TICKS + dt
 
@@ -100,6 +109,8 @@ function love.update(dt)
         PLAYER.arrow_buf = true
     end
 
+    local stepped_on = {}
+
     if PLAYER.cooldown > dt then
         PLAYER.buffered = player_d
         PLAYER.cooldown = PLAYER.cooldown - dt
@@ -120,8 +131,10 @@ function love.update(dt)
             PLAYER.arrow_buf = false
         end
 
-        if not STATE.cells[ny][nx] then
-            STATE.cells[py][px] = nil
+        if is_walkable(nx, ny) then
+            STATE.cells[py][px] = PLAYER.cell.over
+            PLAYER.cell.over = STATE.cells[ny][nx]
+            table.insert(stepped_on, PLAYER.cell.over)
             STATE.cells[ny][nx] = PLAYER.cell
             PLAYER.x = nx
             PLAYER.y = ny
@@ -129,7 +142,8 @@ function love.update(dt)
             PLAYER.cell.moved = true
             PLAYER.cooldown = PLAYER.cooldown + PLAYER_STEP_TIME - dt
         elseif STATE.cells[ny][nx].kind == K_DOOR and #(MICE) == 0 then
-            STATE.cells[py][px] = nil
+            STATE.cells[py][px] = PLAYER.cell.over
+            PLAYER.cell.over = nil
             STATE.cells[ny][nx].sprite = S_PLAYER_STAND
             STATE.cells[ny][nx].dir = player_d
             STATE.cells[ny][nx].moved = true
@@ -183,8 +197,10 @@ function love.update(dt)
                 local ny = clamp(my + dy, 1, STATE.h)
                 if nx ~= mx or ny ~= my then
                     local ncell = STATE.cells[ny][nx]
-                    if not ncell then
-                        STATE.cells[my][mx] = nil
+                    if is_walkable(nx, ny) then
+                        table.insert(stepped_on, ncell)
+                        STATE.cells[my][mx] = mouse.cell.over
+                        mouse.cell.over = STATE.cells[ny][nx]
                         STATE.cells[ny][nx] = mouse.cell
                         mouse.x = nx
                         mouse.y = ny
@@ -192,7 +208,8 @@ function love.update(dt)
                         mouse.cell.moved = true
                         break
                     elseif ncell.kind == K_CHEESE and (ncell.mice or 0) < 2 then
-                        STATE.cells[my][mx] = nil
+                        STATE.cells[my][mx] = mouse.cell.over
+                        mouse.cell.over = nil
                         ncell.mice = (ncell.mice or 0) + 1
                         ncell.sprite = S_MOUSE1
                         ncell.dir = nd
@@ -214,6 +231,42 @@ function love.update(dt)
 
     if #(MICE) == 0 then
         DOOR.cell.tile = T_DOOR_OPEN
+    end
+
+    local toggle_switches = false
+    for istepped, icell in ipairs(stepped_on) do
+        if icell.kind == K_SWITCH_ON then
+            toggle_switches = true
+            break
+        end
+    end
+    if toggle_switches then
+        for ty = 1, STATE.h do
+            for tx = 1, STATE.w do
+                toggle_at(tx, ty)
+            end
+        end
+    end
+end
+
+function toggle_at(x, y)
+    STATE.cells[y][x] = toggled(STATE.cells[y][x])
+end
+
+function toggled(cell)
+    if not cell then
+        return nil
+    elseif cell.kind == K_SWITCH_ON then
+        return clone(L_SWITCH_OFF)
+    elseif cell.kind == K_SWITCH_OFF then
+        return clone(L_SWITCH_ON)
+    elseif cell.kind == K_GATE_ON then
+        return clone(L_GATE_OFF)
+    elseif cell.kind == K_GATE_OFF then
+        return clone(L_GATE_ON)
+    else
+        cell.over = toggled(cell.over)
+        return cell
     end
 end
 
@@ -269,24 +322,33 @@ function love.draw()
                 if t.tile then
                     draw_tile(t.tile, tx, ty)
                 end
-                if t.sprite then
-                    local ats = t.sprite
-                    local atx, aty = tx, ty
-                    if t.moved then
-                        local f = TIMER / STEP_TIME
-                        if t.kind == K_PLAYER or t.kind == K_DOOR then
-                            f = PLAYER.cooldown / PLAYER_STEP_TIME
-                            local o = {[0]=1,[1]=0,[2]=2,[3]=0}
-                            local b = o [math.floor(TICKS*2 / ANIMATION_FRAME) % 4]
-                            ats = ats + b
-                        else
-                            ats = ats + math.floor(TICKS / ANIMATION_FRAME) % 2
-                        end
-                        atx = tx - OFFSET_X[t.dir] * f
-                        aty = ty - OFFSET_Y[t.dir] * f
-                    end
-                    draw_sprite(ats, t.dir, atx, aty)
+                if t.over and t.over.undertile then
+                    draw_tile(t.over.undertile, tx, ty)
                 end
+            end
+        end
+    end
+
+    for tx = 1, grid_w do
+        for ty = 1, grid_h do
+            local t = STATE.cells[ty][tx]
+            if t and t.sprite then
+                local ats = t.sprite
+                local atx, aty = tx, ty
+                if t.moved then
+                    local f = TIMER / STEP_TIME
+                    if t.kind == K_PLAYER or t.kind == K_DOOR then
+                        f = PLAYER.cooldown / PLAYER_STEP_TIME
+                        local o = {[0]=1,[1]=0,[2]=2,[3]=0}
+                        local b = o [math.floor(TICKS*2 / ANIMATION_FRAME) % 4]
+                        ats = ats + b
+                    else
+                        ats = ats + math.floor(TICKS / ANIMATION_FRAME) % 2
+                    end
+                    atx = tx - OFFSET_X[t.dir] * f
+                    aty = ty - OFFSET_Y[t.dir] * f
+                end
+                draw_sprite(ats, t.dir, atx, aty)
             end
         end
     end

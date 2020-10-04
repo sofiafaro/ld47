@@ -60,6 +60,10 @@ T_CHEESE_HALF = {
     [D_NORTH] = T_CHEESE_BOTTOM, [D_EAST] = T_CHEESE_BOTTOM,
     [D_SOUTH] = T_CHEESE_TOP, [D_WEST] = T_CHEESE_TOP
 }
+T_SWITCH_ON = {3,1}
+T_SWITCH_OFF = {3,2}
+T_GATE_ON = {3,3}
+T_GATE_OFF = {3,4}
 
 -- logical kind
 K_DOOR = 'door'
@@ -69,6 +73,10 @@ K_CHEESE = 'cheese'
 K_PLAYER = 'player'
 K_MOUSE = 'mouse'
 K_ARROW = 'arrow'
+K_SWITCH_ON = 'switch_on'
+K_SWITCH_OFF = 'switch_off'
+K_GATE_ON = 'gate_on'
+K_GATE_OFF = 'gate_off'
 
 -- logical tiles
 L_NONE = nil
@@ -93,13 +101,20 @@ L_MOUSE_EAST  = { kind = K_MOUSE, sprite = S_MOUSE1, dir = D_EAST  }
 L_MOUSE_SOUTH = { kind = K_MOUSE, sprite = S_MOUSE1, dir = D_SOUTH }
 L_MOUSE_WEST  = { kind = K_MOUSE, sprite = S_MOUSE1, dir = D_WEST  }
 
+L_SWITCH_ON = { kind = K_SWITCH_ON, tile = T_SWITCH_ON, undertile = T_SWITCH_ON, walkable = true }
+L_SWITCH_OFF = { kind = K_SWITCH_OFF, tile = T_SWITCH_OFF, undertile = T_SWITCH_OFF, walkable = true }
+L_GATE_ON = { kind = K_GATE_ON, tile = T_GATE_ON, undertile = T_GATE_OFF }
+L_GATE_OFF = { kind = K_GATE_OFF, tile = T_GATE_OFF, undertile = T_GATE_OFF, walkable = true }
+
 -- colors
 C_WHITE = {1.0, 1.0, 1.0}
 C_WALL = {115/255, 23/255, 45/255}
 C_FLOOR_ODD = {166/255, 252/255, 219/255}
 C_FLOOR_EVEN = {32/255, 214/255, 199/255}
 
+
 -- level data
+STARTING_LEVEL = 4
 LEVEL_DATA = {
     {
         title = "WELCOME TO THE CHEESE",
@@ -111,6 +126,20 @@ LEVEL_DATA = {
             {L_MOUSE_NORTH, nil, L_DOOR, nil, L_MOUSE_SOUTH},
             {nil, nil, L_CHEESE, nil, nil},
             {nil, nil, nil, nil, nil},
+        },
+    },
+
+    {
+        title = "CHEESE FRIEND",
+        w=6,
+        h=6,
+        cells = {
+            {L_MOUSE_NORTH, L_PLAYER, nil, nil, nil, nil},
+            {L_WALL, L_WALL, L_WALL, L_WALL, L_WALL, nil},
+            {nil, nil, nil, nil, nil, nil},
+            {nil, L_WALL, L_WALL, L_WALL, L_WALL, L_WALL},
+            {nil, nil, nil, nil, nil, nil, nil},
+            {L_WALL, L_WALL, L_WALL, L_WALL, L_CHEESE, L_DOOR},
         },
     },
 
@@ -127,6 +156,21 @@ LEVEL_DATA = {
         },
     },
 
+
+    {
+        title = "ROUND AND ROUND",
+        w=6,
+        h=6,
+        cells = {
+            {L_CHEESE, L_PLAYER, nil, L_MOUSE_EAST, nil, L_MOUSE_EAST},
+            {L_WALL, L_WALL, L_MOUSE_WEST, nil, L_MOUSE_WEST, nil},
+            {nil, L_MOUSE_NORTH, L_WALL, nil, nil, L_WALL},
+            {L_MOUSE_SOUTH, nil, nil, L_CHEESE, nil, L_CHEESE},
+            {nil, L_MOUSE_NORTH, nil, nil, nil, nil},
+            {L_MOUSE_SOUTH, nil, L_WALL, L_CHEESE, nil, L_DOOR},
+        },
+    },
+
     {
         title = "PRESS SHIFT",
         w=9,
@@ -138,4 +182,43 @@ LEVEL_DATA = {
         },
     },
 
+    {
+        title = "SWITCHED",
+        w = 9,
+        h = 3,
+        cells = {
+            {nil, L_PLAYER, nil, L_WALL, L_WALL, L_WALL, nil, L_SWITCH_ON, nil},
+            {nil, L_CHEESE, nil, L_GATE_OFF, nil, L_GATE_ON, nil, L_DOOR, nil},
+            {nil, nil, nil, L_WALL, L_WALL, L_WALL, L_MOUSE_EAST, L_SWITCH_OFF, nil},
+        }
+    },
+
+    {
+        title = "LUNCH TIME",
+        w=9,
+        h=9,
+        cells = {
+            {L_PLAYER, L_WALL, L_MOUSE_SOUTH,
+             L_MOUSE_SOUTH, L_MOUSE_SOUTH, L_MOUSE_SOUTH,
+             L_MOUSE_SOUTH, L_MOUSE_SOUTH, L_MOUSE_SOUTH},
+            {L_SWITCH_ON, L_WALL, L_MOUSE_SOUTH,
+             L_MOUSE_SOUTH, L_MOUSE_SOUTH, L_MOUSE_SOUTH,
+             L_MOUSE_SOUTH, L_MOUSE_SOUTH, L_MOUSE_SOUTH},
+            {L_GATE_ON, L_GATE_ON, L_GATE_ON,
+             L_GATE_ON, L_GATE_ON, L_GATE_ON,
+             L_GATE_ON, L_GATE_ON, L_GATE_ON},
+            {L_CHEESE, nil, L_CHEESE, L_CHEESE, L_CHEESE, L_CHEESE, L_CHEESE, L_CHEESE, L_CHEESE},
+            {nil, nil, nil, nil, nil, nil, nil, nil, nil},
+            {nil, L_CHEESE, L_CHEESE, L_CHEESE, L_CHEESE, L_CHEESE, L_CHEESE, L_CHEESE, L_CHEESE},
+            {L_GATE_ON, L_GATE_ON, L_GATE_ON,
+             L_GATE_ON, L_GATE_ON, L_GATE_ON,
+             L_GATE_ON, L_GATE_ON, L_GATE_ON},
+            {L_MOUSE_NORTH, L_MOUSE_NORTH, L_MOUSE_NORTH,
+             L_MOUSE_NORTH, L_MOUSE_NORTH, L_MOUSE_NORTH,
+             L_MOUSE_NORTH, L_MOUSE_NORTH, L_MOUSE_NORTH},
+            {L_MOUSE_NORTH, L_MOUSE_NORTH, L_MOUSE_NORTH,
+             L_MOUSE_NORTH, L_MOUSE_NORTH, L_MOUSE_NORTH,
+             L_MOUSE_NORTH, L_MOUSE_NORTH, L_DOOR},
+        },
+    },
 }
