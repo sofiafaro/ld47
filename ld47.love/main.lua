@@ -362,12 +362,11 @@ function draw_menu()
     MENU_H = WINDOW_H - 80
     HGAP = 5
     IGAP = 20
-    MID_MENU_Y = MENU_Y+88
-    MAIN_MENU_X = MENU_X+60
-    MAIN_MENU_Y = MID_MENU_Y+10
-    PAUSE_MENU_X = MENU_X+45
-    PAUSE_MENU_Y = MID_MENU_Y
-    END_MENU_X = MENU_X+47
+    MAIN_MENU_X = MENU_X+58
+    MAIN_MENU_Y = MENU_Y+98
+    PAUSE_MENU_X = MENU_X+55
+    PAUSE_MENU_Y = MENU_Y+80
+    END_MENU_X = MENU_X+46
     END_MENU_Y = MENU_Y+198
 
     if IN_MENU then
@@ -394,18 +393,22 @@ function draw_menu()
     end
 
     if PAUSE_MENU then
-        love.graphics.print("PAUSE MENU", PAUSE_MENU_X, PAUSE_MENU_Y)
+        love.graphics.print("GAME PAUSED", PAUSE_MENU_X, PAUSE_MENU_Y)
         love.graphics.print(
-            {{1,1,1}, "PRESS ", {1, 0.8, 0.4}, "ENTER", {1, 1, 1}, " TO START"},
+            {{1,1,1}, " ", {1, 0.8, 0.4}, "ENTER", {1, 1, 1}, " TO RESUME"},
             MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP
         )
         love.graphics.print(
-            {{1,1,1}, "PRESS ", {1, 0.8, 0.4}, "ESCAPE", {1, 1, 1}, " TO EXIT"},
+            {{1,1,1}, " ", {1, 0.8, 0.4}, "R", {1, 1, 1}, " TO RESTART LEVEL"},
             MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP*2
         )
         love.graphics.print(
-            {{1,1,1}, "", {1, 0.8, 0.4}, "R", {1, 1, 1}, " TO RESTART LEVEL"},
+            {{1,1,1}, " ", {1, 0.8, 0.4}, "N", {1, 1, 1}, " TO SKIP LEVEL"},
             MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP*3
+        )
+        love.graphics.print(
+            {{1,1,1}, " ", {1, 0.8, 0.4}, "ESCAPE", {1, 1, 1}, " TO EXIT GAME"},
+            MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP*4
         )
     end
 
