@@ -5,11 +5,12 @@ WINDOW_H = 360
 WINDOW_MARGIN_W = 20
 WINDOW_MARGIN_H = 20
 
-WINDOW_TITLE = 'LD47 - stuck in a loop'
+WINDOW_TITLE = 'MOUSEHERD - LD 47'
 
 SPRITES_PATH = 'img/sprites.png'
 TILES_PATH = 'img/tiles.png'
 FONT_PATH = 'img/font.png'
+ICON_PATH = 'img/icon.png'
 
 SPRITE_W = 16
 SPRITE_H = 16

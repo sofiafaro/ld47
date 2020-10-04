@@ -4,6 +4,7 @@ require('util')
 function love.load()
     love.window.setMode(WINDOW_W, WINDOW_H, {})
     love.window.setTitle(WINDOW_TITLE)
+    love.window.setIcon(love.image.newImageData(ICON_PATH))
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
     KEYSTATE = {}
