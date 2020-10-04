@@ -3,7 +3,7 @@
 WINDOW_W = 640
 WINDOW_H = 360
 WINDOW_MARGIN_W = 20
-WINDOW_MARGIN_H = 30
+WINDOW_MARGIN_H = 20
 
 WINDOW_TITLE = 'LD47 - stuck in a loop'
 
@@ -103,8 +103,8 @@ L_MOUSE_WEST  = { kind = K_MOUSE, sprite = S_MOUSE1, dir = D_WEST  }
 
 L_SWITCH_ON = { kind = K_SWITCH_ON, tile = T_SWITCH_ON, undertile = T_SWITCH_ON, walkable = true }
 L_SWITCH_OFF = { kind = K_SWITCH_OFF, tile = T_SWITCH_OFF, undertile = T_SWITCH_OFF, walkable = true }
-L_GATE_ON = { kind = K_GATE_ON, tile = T_GATE_ON, undertile = T_GATE_OFF }
-L_GATE_OFF = { kind = K_GATE_OFF, tile = T_GATE_OFF, undertile = T_GATE_OFF, walkable = true }
+L_GATE_ON = { kind = K_GATE_ON, tile = T_GATE_ON, undertile = T_GATE_OFF, drawable = true }
+L_GATE_OFF = { kind = K_GATE_OFF, tile = T_GATE_OFF, undertile = T_GATE_OFF, walkable = true, drawable = true }
 
 -- colors
 C_WHITE = {1.0, 1.0, 1.0}
@@ -114,7 +114,6 @@ C_FLOOR_EVEN = {32/255, 214/255, 199/255}
 
 
 -- level data
-STARTING_LEVEL = 4
 LEVEL_DATA = {
     {
         title = "WELCOME TO THE CHEESE",
@@ -222,7 +221,7 @@ LEVEL_DATA = {
     },
 
     {
-        title = "SWITCHED",
+        title = "SWITCHING IT UP",
         w = 9,
         h = 3,
         cells = {
@@ -277,4 +276,57 @@ LEVEL_DATA = {
              L_MOUSE_NORTH, L_MOUSE_NORTH, L_MOUSE_NORTH},
         },
     },
+
+    {
+        title = "FORTRESS",
+        w=5, h=5,
+        cells = {
+            { nil, nil, L_SWITCH_OFF, nil, L_MOUSE_SOUTH },
+            { nil, L_PLAYER, L_GATE_ON, L_SWITCH_OFF, nil },
+            { L_SWITCH_ON, L_GATE_OFF, L_CHEESE, L_GATE_ON, L_SWITCH_OFF },
+            { nil, L_SWITCH_ON, L_GATE_OFF, L_DOOR, nil },
+            { L_MOUSE_NORTH, nil, L_SWITCH_ON, nil, nil },
+        }
+    },
+
+    {
+        title = "LOOPS",
+        w=5, h=6,
+        cells = {
+            {nil, nil, nil, L_MOUSE_SOUTH, L_WALL},
+            {nil, L_WALL, L_CHEESE, nil, L_PLAYER},
+            {nil, nil, nil, nil, L_MOUSE_SOUTH},
+            {L_MOUSE_NORTH, nil, nil, nil, nil},
+            {L_DOOR, nil, L_CHEESE, L_WALL, nil},
+
+            {L_WALL, L_MOUSE_NORTH, nil, nil},
+        },
+    },
+
+    {
+        title = "15",
+    },
+
+    {
+        title = "RNG",
+        w=7, h=7,
+        cells = {
+            {L_SWITCH_ON, nil, L_MOUSE_NORTH, L_WALL, L_MOUSE_SOUTH, L_MOUSE_EAST, L_MOUSE_EAST},
+            {L_GATE_OFF, nil, nil, L_SWITCH_OFF, L_GATE_ON, L_MOUSE_WEST, L_MOUSE_WEST},
+            {L_MOUSE_SOUTH, nil, L_SWITCH_OFF, L_WALL, L_MOUSE_NORTH, L_MOUSE_WEST, L_MOUSE_WEST},
+            {L_GATE_ON, nil, L_WALL, L_WALL, L_WALL, L_WALL, L_WALL},
+            {L_DOOR, nil,  L_WALL, L_PLAYER, L_CHEESE, L_CHEESE, L_WALL},
+            {L_WALL, nil, L_WALL, nil, nil, L_GATE_ON, L_CHEESE},
+            {nil, L_SWITCH_OFF, nil, L_SWITCH_ON, L_CHEESE, L_CHEESE, L_WALL},
+        }
+    },
+
+    { -- for debugging
+        title = "UNPOSSIBLE",
+        w=3, h=1,
+        cells= { {L_PLAYER, L_WALL, L_DOOR}}
+    }
 }
+
+STARTING_LEVEL = 12 -- for debugging
+FINAL_LEVEL = 15

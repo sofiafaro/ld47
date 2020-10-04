@@ -18,7 +18,7 @@ function love.load()
     KEYSTATE = {}
     KEYPRESS = {}
 
-    load_level(1)
+    load_level(STARTING_LEVEL)
 end
 
 function load_level(level_num)
@@ -80,6 +80,10 @@ function is_walkable(x, y)
     end
 end
 
+function is_drawable()
+    return (not PLAYER.cell.over) or PLAYER.cell.over.drawable
+end
+
 function love.update(dt)
     TICKS = TICKS + dt
 
@@ -127,7 +131,9 @@ function love.update(dt)
         local ny = clamp(PLAYER.y + dy, 1, STATE.h)
 
         if PLAYER.arrow_buf then
-            ARROW = {x=px, y=py, dir=player_d}
+            if is_drawable() then
+                ARROW = {x=px, y=py, dir=player_d}
+            end
             PLAYER.arrow_buf = false
         end
 
