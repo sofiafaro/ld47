@@ -69,6 +69,10 @@ function load_level(level_num)
         GAME_DONE = true
         level_num = 1
         RUN_TIMER_PAUSED = true
+        LAST_RUN = VALID_RUN and RUN_TIMER
+        if LAST_RUN and (not BEST_RUN or BEST_RUN < LAST_RUN) then
+            BEST_RUN = LAST_RUN
+        end
     end
 
     LEVEL = level_num
@@ -367,6 +371,7 @@ end
 
 function draw_menu()
     MENU_X = 40
+    MENU_X2 = 400
     MENU_Y = 40
     MENU_W = 195
     MENU_H = WINDOW_H - 80
@@ -414,10 +419,12 @@ function draw_menu()
             {{1,1,1}, "", {1, 0.8, 0.4}, "R", {1, 1, 1}, " TO RESTART LEVEL"},
             MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP*3
         )
-        love.graphics.print(
-            {{1,1,1}, "", {1, 0.8, 0.4}, "N", {1, 1, 1}, " TO SKIP LEVEL"},
-            MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP*4
-        )
+        if LEVEL < FINAL_LEVEL then
+            love.graphics.print(
+                {{1,1,1}, "", {1, 0.8, 0.4}, "N", {1, 1, 1}, " TO SKIP LEVEL"},
+                MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP*4
+            )
+        end
     end
 
     if IN_MENU then
@@ -430,6 +437,32 @@ function draw_menu()
             {{1, 0.8, 0.4}, "SHIFT", {1, 1, 1}, " TO PLACE ARROW"},
             MENU_X+20, END_MENU_Y + HGAP + IGAP*2
         )
+    end
+
+    if IN_MENU and GAME_DONE then
+        love.graphics.setColor({0.3, 0.3, 0.3, 0.98})
+        love.graphics.rectangle('fill', MENU_X2, MENU_Y, MENU_W, MENU_H)
+        love.graphics.setColor({1, 1, 1})
+        love.graphics.print("WELL DONE", MENU_X2+20, MENU_Y+10, 0, 2, 2)
+        love.graphics.print("THANKS FOR PLAYING", MENU_X2+20, MENU_Y+42)
+
+        RUN_STATS_LINES = 2
+        RUN_STATS_Y = MENU_Y+240 - RUN_STATS_LINES*IGAP
+        CREDITS_Y = MENU_Y+118 - RUN_STATS_LINES*IGAP/2
+
+        love.graphics.print("CREDITS", MENU_X2+65, CREDITS_Y)
+        love.graphics.print("GAME BY TYPESWITCH", MENU_X2+20, CREDITS_Y+HGAP+IGAP)
+        love.graphics.print("FONT BY THE KROOB", MENU_X2+20, CREDITS_Y+HGAP+IGAP*2)
+
+        love.graphics.print("RUN STATS", MENU_X2+60, RUN_STATS_Y)
+        if not LAST_RUN then
+            love.graphics.print("LAST RUN USED SKIPS", MENU_X2+20, RUN_STATS_Y+HGAP+IGAP)
+        else
+            love.graphics.print("LAST RUN  " .. math.floor(LAST_RUN), MENU_X2+20, RUN_STATS_Y+HGAP+IGAP)
+        end
+        if BEST_RUN then
+            love.graphics.print("BEST RUN  " .. math.floor(BEST_RUN), MENU_X2+20, RUN_STATS_Y+HGAP+IGAP*2)
+        end
     end
 end
 
