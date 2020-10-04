@@ -2,6 +2,8 @@
 
 WINDOW_W = 640
 WINDOW_H = 360
+WINDOW_MARGIN_W = 20
+WINDOW_MARGIN_H = 30
 
 WINDOW_TITLE = 'LD47 - stuck in a loop'
 
@@ -10,6 +12,9 @@ TILES_PATH = 'img/tiles.png'
 
 SPRITE_W = 16
 SPRITE_H = 16
+
+MIN_SCALE = 1
+MAX_SCALE = 4
 SCALE = 3
 ANIMATION_FRAME = 0.25
 
@@ -128,7 +133,7 @@ LEVEL_DATA = {
         h=3,
         cells = {
             {nil, nil, nil, L_WALL, L_CHEESE, L_WALL, nil, nil, nil},
-            {L_MOUSE_NORTH, nil, nil, nil, L_PLAYER, nil, nil, nil, L_MOUSE_SOUTH},
+            {L_MOUSE_NORTH, nil, nil, nil, L_PLAYER, nil, L_MOUSE_NORTH, nil, nil},
             {nil, nil, nil, L_WALL, L_DOOR, L_WALL, nil, nil, nil},
         },
     },

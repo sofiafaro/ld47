@@ -40,6 +40,10 @@ function load_level(level_num)
     KEYPRESS = {}
     PASSIVE_KEY_ENABLED = false
 
+    local h_scale = math.floor((WINDOW_H - WINDOW_MARGIN_H) / (SPRITE_H * STATE.h))
+    local w_scale = math.floor((WINDOW_W - WINDOW_MARGIN_W) / (SPRITE_W * STATE.w))
+    SCALE = clamp(math.min(h_scale, w_scale), MIN_SCALE, MAX_SCALE)
+
     for y = 1, STATE.h do
         local row = STATE.cells[y]
         for x = 1, STATE.w do

@@ -42,20 +42,6 @@ function make_quads(image)
     return quads
 end
 
-function draw_sprite(data)
-    local img = data.img
-    local flipped = data.flipped or false
-    local sign = (flipped and -1) or 1
-    local x = data.x or 0
-    local y = data.y or 0
-    local r = data.r or 0
-    if flipped then
-        local w, h = img:getDimensions()
-        x = x + w * SCALE
-    end
-    love.graphics.draw(img, x, y, r or 0, sign * SCALE, SCALE)
-end
-
 function clone(t)
     if type(t) == 'table' then
         local t2 = {}
