@@ -550,6 +550,14 @@ function love.draw()
         end
     end
 
+    if LEVEL == 6 then
+        love.graphics.print(
+            {{1,1,1}, "USE ", {1, 0.8, 0.4}, "SHIFT", {1,1,1}, " TO PLACE AN ARROW"},
+            116, 283,
+            0, 2, 2
+        )
+    end
+
     draw_menu()
     if (not MAIN_MENU) and VALID_RUN then
         local rt_text = '' .. math.floor(RUN_TIMER)
@@ -562,8 +570,10 @@ function love.keypressed(key)
     if key == 'escape' then
         if MAIN_MENU then
             love.event.quit()
-        else
+        elseif PAUSE_MENU then
             load_main_menu()
+        else
+            pause_game()
         end
     else
         KEYSTATE [key] = true

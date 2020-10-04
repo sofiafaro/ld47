@@ -187,11 +187,12 @@ LEVEL_DATA = {
     {
         title = "PRESS SHIFT",
         w=5,
-        h=3,
+        h=4,
         cells = {
             {nil, L_WALL, L_DOOR, L_WALL, nil},
             {nil, L_PLAYER, L_MOUSE_EAST, nil, nil},
             {nil, L_WALL, L_CHEESE, L_WALL, nil},
+            {L_WALL,L_WALL,L_WALL,L_WALL,L_WALL},
         }
     },
 

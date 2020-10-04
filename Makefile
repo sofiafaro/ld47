@@ -25,10 +25,9 @@ dist/$(NAME)-win32.zip: dist/$(NAME).love dist/love-win32
 	cd dist && zip -9 -r $(NAME)-win32.zip $(NAME)-win32
 	rm -rf dist/$(NAME)-win32
 
-dist/$(NAME)-macos.zip: dist/$(NAME).love dist/love.app dist/icon.icns dist/Info.plist
+dist/$(NAME)-macos.zip: dist/$(NAME).love dist/love.app dist/Info.plist
 	rm -rf dist/$(NAME).app
 	cp -r dist/love.app dist/$(NAME).app
 	cp dist/$(NAME).love dist/$(NAME).app/Contents/Resources/
-	cp dist/icon.icns dist/$(NAME).app/Contents/Resources/"OS X AppIcon.icns"
 	cp dist/Info.plist dist/$(NAME).app/Contents/
 	cd dist && zip -9 -y -r $(NAME)-macos.zip $(NAME).app
