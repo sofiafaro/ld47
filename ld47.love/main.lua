@@ -30,6 +30,7 @@ function load_main_menu()
     IN_MENU = true
     MAIN_MENU = true
     GAME_PAUSED = false
+    PAUSE_MENU = false
 end
 
 function pause_game()
@@ -45,14 +46,13 @@ function pause_game()
 end
 
 function restart_level()
-    if not IN_MENU then
-        load_level(LEVEL)
-    end
+    load_level(LEVEL)
 end
 
 function skip_level()
     if LEVEL < FINAL_LEVEL then
         load_level(LEVEL+1)
+        VALID_RUN = false
     end
 end
 
@@ -64,8 +64,11 @@ end
 
 function load_level(level_num)
     if level_num > #(LEVEL_DATA) then
+        IN_MENU = true
+        MAIN_MENU = true
         GAME_DONE = true
         level_num = 1
+        RUN_TIMER_PAUSED = true
     end
 
     LEVEL = level_num
@@ -80,6 +83,7 @@ function load_level(level_num)
     KEYSTATE = {}
     KEYPRESS = {}
     PASSIVE_KEY_ENABLED = false
+    RUN_TIMER_PAUSED = true
 
     local h_scale = math.floor((WINDOW_H - WINDOW_MARGIN_H) / (SPRITE_H * STATE.h))
     local w_scale = math.floor((WINDOW_W - WINDOW_MARGIN_W) / (SPRITE_W * STATE.w))
@@ -126,6 +130,10 @@ function is_drawable()
 end
 
 function love.update(dt)
+    if VALID_RUN and (not RUN_TIMER_PAUSED) and (not GAME_PAUSED) then
+        RUN_TIMER = RUN_TIMER + dt
+    end
+
     TICKS = TICKS + dt
 
     -- handle input
@@ -134,6 +142,8 @@ function love.update(dt)
             IN_MENU = false
             GAME_PAUSED = false
             MAIN_MENU = false
+            VALID_RUN = true
+            RUN_TIMER = 0.0
         end
     elseif PAUSE_MENU then
         if KEYPRESS['return'] then
@@ -177,6 +187,7 @@ function love.update(dt)
             if KEYPRESS[k] then
                 player_d = d
                 PASSIVE_KEY_ENABLED = true
+                RUN_TIMER_PAUSED = false
             end
             if KEYSTATE[k] and PASSIVE_KEY_ENABLED then
                 player_d2 = d
@@ -331,7 +342,6 @@ function love.update(dt)
     end
 
     KEYPRESS = {}
-
 end
 
 function toggle_at(x, y)
@@ -391,21 +401,21 @@ function draw_menu()
     end
 
     if PAUSE_MENU then
-        love.graphics.print("GAME PAUSED", PAUSE_MENU_X, PAUSE_MENU_Y)
+        love.graphics.print("PAUSE MENU", PAUSE_MENU_X, PAUSE_MENU_Y)
         love.graphics.print(
             {{1,1,1}, "", {1, 0.8, 0.4}, "ENTER", {1, 1, 1}, " TO RESUME"},
             MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP
         )
         love.graphics.print(
-            {{1,1,1}, "", {1, 0.8, 0.4}, "R", {1, 1, 1}, " TO RESTART LEVEL"},
+            {{1,1,1}, "", {1, 0.8, 0.4}, "ESCAPE", {1, 1, 1}, " TO END RUN"},
             MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP*2
         )
         love.graphics.print(
-            {{1,1,1}, "", {1, 0.8, 0.4}, "N", {1, 1, 1}, " TO SKIP LEVEL"},
+            {{1,1,1}, "", {1, 0.8, 0.4}, "R", {1, 1, 1}, " TO RESTART LEVEL"},
             MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP*3
         )
         love.graphics.print(
-            {{1,1,1}, "", {1, 0.8, 0.4}, "ESCAPE", {1, 1, 1}, " TO EXIT GAME"},
+            {{1,1,1}, "", {1, 0.8, 0.4}, "N", {1, 1, 1}, " TO SKIP LEVEL"},
             MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP*4
         )
     end
@@ -507,11 +517,20 @@ function love.draw()
     end
 
     draw_menu()
+    if (not MAIN_MENU) and VALID_RUN then
+        local rt_text = '' .. math.floor(RUN_TIMER)
+        local rt_color = ((RUN_TIMER_PAUSED or GAME_PAUSED) and {0.7,0.7,0.7}) or {1,1,1}
+        love.graphics.print({rt_color, rt_text}, 10, 0, 0, 2, 2)
+    end
 end
 
 function love.keypressed(key)
     if key == 'escape' then
-        love.event.quit()
+        if MAIN_MENU then
+            love.event.quit()
+        else
+            load_main_menu()
+        end
     else
         KEYSTATE [key] = true
         KEYPRESS [key] = (KEYPRESS[key] or 0) + 1
