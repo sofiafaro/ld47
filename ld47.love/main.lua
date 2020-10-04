@@ -368,17 +368,15 @@ function draw_menu()
     PAUSE_MENU_Y = MENU_Y+78
     END_MENU_X = MENU_X+46
     END_MENU_Y = MENU_Y+200
+    love.graphics.setFont(FONT)
 
     if IN_MENU then
         love.graphics.setColor({0.3, 0.3, 0.3, 0.98})
         love.graphics.rectangle('fill', MENU_X, MENU_Y, MENU_W, MENU_H)
         love.graphics.setColor({1, 1, 1})
 
-        love.graphics.setFont(FONT)
         love.graphics.print("MOUSEHERD", MENU_X+20, MENU_Y+10, 0, 2, 2)
         love.graphics.print("LD 47  STUCK IN A LOOP", MENU_X+20, MENU_Y+42)
- --       love.graphics.print("A GAME BY TYPESWITCH", MENU_X+20, MENU_Y+61)
-
     end
     if MAIN_MENU then
         love.graphics.print("MAIN MENU", MAIN_MENU_X, MAIN_MENU_Y)
