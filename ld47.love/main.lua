@@ -22,7 +22,44 @@ function love.load()
     KEYSTATE = {}
     KEYPRESS = {}
 
+    load_main_menu()
+end
+
+function load_main_menu()
     load_level(STARTING_LEVEL)
+    IN_MENU = true
+    MAIN_MENU = true
+    GAME_PAUSED = false
+end
+
+function pause_game()
+    if GAME_PAUSED then
+        IN_MENU = false
+        PAUSE_MENU = false
+        GAME_PAUSED = false
+    else
+        IN_MENU = true
+        PAUSE_MENU = true
+        GAME_PAUSED = true
+    end
+end
+
+function restart_level()
+    if not IN_MENU then
+        load_level(LEVEL)
+    end
+end
+
+function skip_level()
+    if LEVEL < FINAL_LEVEL then
+        load_level(LEVEL+1)
+    end
+end
+
+function prev_level()
+    if LEVEL > STARTING_LEVEL then
+        load_level(LEVEL-1)
+    end
 end
 
 function load_level(level_num)
@@ -91,172 +128,210 @@ end
 function love.update(dt)
     TICKS = TICKS + dt
 
-    if KEYPRESS['r'] then
-        load_level(LEVEL)
-    elseif KEYPRESS['n'] then
-        local nl = clamp(LEVEL+1, 1, #(LEVEL_DATA))
-        load_level(nl)
-    elseif KEYPRESS['p'] then
-        local nl = clamp(LEVEL-1, 1, #(LEVEL_DATA))
-        load_level(nl)
+    -- handle input
+    if MAIN_MENU then
+        if KEYPRESS['return'] then
+            IN_MENU = false
+            GAME_PAUSED = false
+            MAIN_MENU = false
+        end
+    elseif PAUSE_MENU then
+        if KEYPRESS['return'] then
+            IN_MENU = false
+            PAUSE_MENU = false
+            GAME_PAUSED = false
+        elseif KEYPRESS['r'] then
+            restart_level()
+            IN_MENU = false
+            PAUSE_MENU = false
+            GAME_PAUSED = false
+        elseif KEYPRESS['n'] then
+            skip_level()
+            IN_MENU = false
+            PAUSE_MENU = false
+            GAME_PAUSED = false
+        elseif KEYPRESS['p'] then
+            prev_level()
+            IN_MENU = false
+            PAUSE_MENU = false
+            GAME_PAUSED = false
+        end
+    elseif not IN_MENU then
+        if KEYPRESS['return'] then
+            IN_MENU = true
+            PAUSE_MENU = true
+            GAME_PAUSED = true
+        elseif KEYPRESS['r'] then
+            restart_level()
+        elseif KEYPRESS['n'] then
+            skip_level()
+        elseif KEYPRESS['p'] then
+            prev_level()
+        end
     end
 
     local player_d = PLAYER.buffered
     local player_d2 = nil
-    for k,d in pairs(MOVE_KEYS) do
-        if KEYPRESS[k] then
-            player_d = d
-            PASSIVE_KEY_ENABLED = true
-        end
-        if KEYSTATE[k] and PASSIVE_KEY_ENABLED then
-            player_d2 = d
-        end
-    end
-
-    if KEYPRESS['lshift'] or KEYPRESS['rshift'] then
-        PLAYER.arrow_buf = true
-    end
-
-    local stepped_on = {}
-
-    if PLAYER.cooldown > dt then
-        PLAYER.buffered = player_d
-        PLAYER.cooldown = PLAYER.cooldown - dt
-    elseif PLAYER.x == DOOR.x and PLAYER.y == DOOR.y then
-        load_level(LEVEL+1)
-        return
-    elseif player_d or player_d2 then
-        player_d = player_d or player_d2
-        local dx = OFFSET_X[player_d]
-        local dy = OFFSET_Y[player_d]
-        local px = PLAYER.x
-        local py = PLAYER.y
-        local nx = clamp(PLAYER.x + dx, 1, STATE.w)
-        local ny = clamp(PLAYER.y + dy, 1, STATE.h)
-
-        if PLAYER.arrow_buf then
-            if is_drawable() then
-                ARROW = {x=px, y=py, dir=player_d}
+    if not IN_MENU then
+        for k,d in pairs(MOVE_KEYS) do
+            if KEYPRESS[k] then
+                player_d = d
+                PASSIVE_KEY_ENABLED = true
             end
-            PLAYER.arrow_buf = false
+            if KEYSTATE[k] and PASSIVE_KEY_ENABLED then
+                player_d2 = d
+            end
         end
 
-        if is_walkable(nx, ny) then
-            STATE.cells[py][px] = PLAYER.cell.over
-            PLAYER.cell.over = STATE.cells[ny][nx]
-            table.insert(stepped_on, PLAYER.cell.over)
-            STATE.cells[ny][nx] = PLAYER.cell
-            PLAYER.x = nx
-            PLAYER.y = ny
-            PLAYER.cell.dir = player_d
-            PLAYER.cell.moved = true
-            PLAYER.cooldown = PLAYER.cooldown + PLAYER_STEP_TIME - dt
-        elseif STATE.cells[ny][nx].kind == K_DOOR and #(MICE) == 0 then
-            STATE.cells[py][px] = PLAYER.cell.over
-            PLAYER.cell.over = nil
-            STATE.cells[ny][nx].sprite = S_PLAYER_STAND
-            STATE.cells[ny][nx].dir = player_d
-            STATE.cells[ny][nx].moved = true
-            PLAYER.cooldown = PLAYER.cooldown + PLAYER_STEP_TIME - dt
-            PLAYER.x = nx
-            PLAYER.y = ny
-        else
-            PLAYER.cell.moved = false
-            PLAYER.cooldown = 0
+        if KEYPRESS['lshift'] or KEYPRESS['rshift'] then
+            PLAYER.arrow_buf = true
         end
-
-        PLAYER.buffered = nil
-    else
-        PLAYER.buffered = nil
-        PLAYER.cooldown = 0
-        PLAYER.cell.moved = false
     end
 
-    TIMER = TIMER - dt
-    if TIMER + dt > STEP_TIME/3 and TIMER <= STEP_TIME/3 then
-        for icheese, cheese in ipairs(ANIM_CHEESES) do
-            if cheese.mice == 2 then
-                cheese.tile = T_CHEESE_BOTH
+    if not GAME_PAUSED then
+
+        local stepped_on = {}
+
+        if PLAYER.cooldown > dt then
+            PLAYER.buffered = player_d
+            PLAYER.cooldown = PLAYER.cooldown - dt
+        elseif PLAYER.x == DOOR.x and PLAYER.y == DOOR.y then
+            load_level(LEVEL+1)
+            return
+        elseif player_d or player_d2 then
+            player_d = player_d or player_d2
+            local dx = OFFSET_X[player_d]
+            local dy = OFFSET_Y[player_d]
+            local px = PLAYER.x
+            local py = PLAYER.y
+            local nx = clamp(PLAYER.x + dx, 1, STATE.w)
+            local ny = clamp(PLAYER.y + dy, 1, STATE.h)
+
+            if PLAYER.arrow_buf then
+                if is_drawable() then
+                    ARROW = {x=px, y=py, dir=player_d}
+                end
+                PLAYER.arrow_buf = false
+            end
+
+            if is_walkable(nx, ny) then
+                STATE.cells[py][px] = PLAYER.cell.over
+                PLAYER.cell.over = STATE.cells[ny][nx]
+                table.insert(stepped_on, PLAYER.cell.over)
+                STATE.cells[ny][nx] = PLAYER.cell
+                PLAYER.x = nx
+                PLAYER.y = ny
+                PLAYER.cell.dir = player_d
+                PLAYER.cell.moved = true
+                PLAYER.cooldown = PLAYER.cooldown + PLAYER_STEP_TIME - dt
+            elseif STATE.cells[ny][nx].kind == K_DOOR and #(MICE) == 0 then
+                STATE.cells[py][px] = PLAYER.cell.over
+                PLAYER.cell.over = nil
+                STATE.cells[ny][nx].sprite = S_PLAYER_STAND
+                STATE.cells[ny][nx].dir = player_d
+                STATE.cells[ny][nx].moved = true
+                PLAYER.cooldown = PLAYER.cooldown + PLAYER_STEP_TIME - dt
+                PLAYER.x = nx
+                PLAYER.y = ny
             else
-                cheese.tile = T_CHEESE_HALF[cheese.dir]
+                PLAYER.cell.moved = false
+                PLAYER.cooldown = 0
             end
-            cheese.sprite = nil
-            cheese.moved = nil
-            cheese.dir = nil
-        end
-        ANIM_CHEESES = {}
-    end
 
-    if TIMER <= 0 then
-        TIMER = TIMER + STEP_TIME
-        local new_mice = {}
-        for imouse, mouse in ipairs(MICE) do
-            local mx = mouse.x
-            local my = mouse.y
-            local md = mouse.cell.dir
-            if ARROW and ARROW.x == mx and ARROW.y == my then
-                md = ARROW.dir
+            PLAYER.buffered = nil
+        else
+            PLAYER.buffered = nil
+            PLAYER.cooldown = 0
+            PLAYER.cell.moved = false
+        end
+
+        TIMER = TIMER - dt
+        if TIMER + dt > STEP_TIME/3 and TIMER <= STEP_TIME/3 then
+            for icheese, cheese in ipairs(ANIM_CHEESES) do
+                if cheese.mice == 2 then
+                    cheese.tile = T_CHEESE_BOTH
+                else
+                    cheese.tile = T_CHEESE_HALF[cheese.dir]
+                end
+                cheese.sprite = nil
+                cheese.moved = nil
+                cheese.dir = nil
             end
-            local mdone = false
-            mouse.cell.moved = false
-            for irot, rot in ipairs(ROT_ORDER) do
-                local nd = rot[md]
-                local dx = OFFSET_X[nd]
-                local dy = OFFSET_Y[nd]
-                local nx = clamp(mx + dx, 1, STATE.w)
-                local ny = clamp(my + dy, 1, STATE.h)
-                if nx ~= mx or ny ~= my then
-                    local ncell = STATE.cells[ny][nx]
-                    if is_walkable(nx, ny) then
-                        table.insert(stepped_on, ncell)
-                        STATE.cells[my][mx] = mouse.cell.over
-                        mouse.cell.over = STATE.cells[ny][nx]
-                        STATE.cells[ny][nx] = mouse.cell
-                        mouse.x = nx
-                        mouse.y = ny
-                        mouse.cell.dir = nd
-                        mouse.cell.moved = true
-                        break
-                    elseif ncell.kind == K_CHEESE and (ncell.mice or 0) < 2 then
-                        STATE.cells[my][mx] = mouse.cell.over
-                        mouse.cell.over = nil
-                        ncell.mice = (ncell.mice or 0) + 1
-                        ncell.sprite = S_MOUSE1
-                        ncell.dir = nd
-                        ncell.moved = true
-                        table.insert(ANIM_CHEESES, ncell)
-                        mdone = true
-                        break
+            ANIM_CHEESES = {}
+        end
+
+        if TIMER <= 0 then
+            TIMER = TIMER + STEP_TIME
+            local new_mice = {}
+            for imouse, mouse in ipairs(MICE) do
+                local mx = mouse.x
+                local my = mouse.y
+                local md = mouse.cell.dir
+                if ARROW and ARROW.x == mx and ARROW.y == my then
+                    md = ARROW.dir
+                end
+                local mdone = false
+                mouse.cell.moved = false
+                for irot, rot in ipairs(ROT_ORDER) do
+                    local nd = rot[md]
+                    local dx = OFFSET_X[nd]
+                    local dy = OFFSET_Y[nd]
+                    local nx = clamp(mx + dx, 1, STATE.w)
+                    local ny = clamp(my + dy, 1, STATE.h)
+                    if nx ~= mx or ny ~= my then
+                        local ncell = STATE.cells[ny][nx]
+                        if is_walkable(nx, ny) then
+                            table.insert(stepped_on, ncell)
+                            STATE.cells[my][mx] = mouse.cell.over
+                            mouse.cell.over = STATE.cells[ny][nx]
+                            STATE.cells[ny][nx] = mouse.cell
+                            mouse.x = nx
+                            mouse.y = ny
+                            mouse.cell.dir = nd
+                            mouse.cell.moved = true
+                            break
+                        elseif ncell.kind == K_CHEESE and (ncell.mice or 0) < 2 then
+                            STATE.cells[my][mx] = mouse.cell.over
+                            mouse.cell.over = nil
+                            ncell.mice = (ncell.mice or 0) + 1
+                            ncell.sprite = S_MOUSE1
+                            ncell.dir = nd
+                            ncell.moved = true
+                            table.insert(ANIM_CHEESES, ncell)
+                            mdone = true
+                            break
+                        end
                     end
                 end
+                if not mdone then
+                    table.insert(new_mice, mouse)
+                end
             end
-            if not mdone then
-                table.insert(new_mice, mouse)
+            MICE = new_mice
+        end
+
+        if #(MICE) == 0 then
+            DOOR.cell.tile = T_DOOR_OPEN
+        end
+
+        local toggle_switches = false
+        for istepped, icell in ipairs(stepped_on) do
+            if icell.kind == K_SWITCH_ON then
+                toggle_switches = true
+                break
             end
         end
-        MICE = new_mice
+        if toggle_switches then
+            for ty = 1, STATE.h do
+                for tx = 1, STATE.w do
+                    toggle_at(tx, ty)
+                end
+            end
+        end
     end
 
     KEYPRESS = {}
 
-    if #(MICE) == 0 then
-        DOOR.cell.tile = T_DOOR_OPEN
-    end
-
-    local toggle_switches = false
-    for istepped, icell in ipairs(stepped_on) do
-        if icell.kind == K_SWITCH_ON then
-            toggle_switches = true
-            break
-        end
-    end
-    if toggle_switches then
-        for ty = 1, STATE.h do
-            for tx = 1, STATE.w do
-                toggle_at(tx, ty)
-            end
-        end
-    end
 end
 
 function toggle_at(x, y)
@@ -277,6 +352,73 @@ function toggled(cell)
     else
         cell.over = toggled(cell.over)
         return cell
+    end
+end
+
+function draw_menu()
+    MENU_X = 40
+    MENU_Y = 40
+    MENU_W = 195
+    MENU_H = WINDOW_H - 80
+    HGAP = 5
+    IGAP = 20
+    MID_MENU_Y = MENU_Y+88
+    MAIN_MENU_X = MENU_X+60
+    MAIN_MENU_Y = MID_MENU_Y+10
+    PAUSE_MENU_X = MENU_X+45
+    PAUSE_MENU_Y = MID_MENU_Y
+    END_MENU_X = MENU_X+47
+    END_MENU_Y = MENU_Y+198
+
+    if IN_MENU then
+        love.graphics.setColor({0.3, 0.3, 0.3, 0.98})
+        love.graphics.rectangle('fill', MENU_X, MENU_Y, MENU_W, MENU_H)
+        love.graphics.setColor({1, 1, 1})
+
+        love.graphics.setFont(FONT)
+        love.graphics.print("MOUSEHERD", MENU_X+20, MENU_Y+10, 0, 2, 2)
+        love.graphics.print("LD 47  STUCK IN A LOOP", MENU_X+20, MENU_Y+42)
+ --       love.graphics.print("A GAME BY TYPESWITCH", MENU_X+20, MENU_Y+61)
+
+    end
+    if MAIN_MENU then
+        love.graphics.print("MAIN MENU", MAIN_MENU_X, MAIN_MENU_Y)
+        love.graphics.print(
+            {{1,1,1}, "PRESS ", {1, 0.8, 0.4}, "ENTER", {1, 1, 1}, " TO START"},
+            MENU_X+20, MAIN_MENU_Y + HGAP + IGAP
+        )
+        love.graphics.print(
+            {{1,1,1}, "PRESS ", {1, 0.8, 0.4}, "ESCAPE", {1, 1, 1}, " TO EXIT"},
+            MENU_X+20, MAIN_MENU_Y + HGAP + IGAP*2
+        )
+    end
+
+    if PAUSE_MENU then
+        love.graphics.print("PAUSE MENU", PAUSE_MENU_X, PAUSE_MENU_Y)
+        love.graphics.print(
+            {{1,1,1}, "PRESS ", {1, 0.8, 0.4}, "ENTER", {1, 1, 1}, " TO START"},
+            MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP
+        )
+        love.graphics.print(
+            {{1,1,1}, "PRESS ", {1, 0.8, 0.4}, "ESCAPE", {1, 1, 1}, " TO EXIT"},
+            MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP*2
+        )
+        love.graphics.print(
+            {{1,1,1}, "", {1, 0.8, 0.4}, "R", {1, 1, 1}, " TO RESTART LEVEL"},
+            MENU_X+20, PAUSE_MENU_Y + HGAP + IGAP*3
+        )
+    end
+
+    if IN_MENU then
+        love.graphics.print({{1.0, 1.0, 1.0},  "GAME CONTROLS"}, END_MENU_X, END_MENU_Y)
+        love.graphics.print(
+            {{1, 0.8, 0.4}, "ARROW KEYS", {1, 1, 1}, " TO MOVE"},
+            MENU_X+20, END_MENU_Y + HGAP + IGAP
+        )
+        love.graphics.print(
+            {{1, 0.8, 0.4}, "SHIFT", {1, 1, 1}, " TO PLACE ARROW"},
+            MENU_X+20, END_MENU_Y + HGAP + IGAP*2
+        )
     end
 end
 
@@ -363,6 +505,7 @@ function love.draw()
         end
     end
 
+    draw_menu()
 end
 
 function love.keypressed(key)
