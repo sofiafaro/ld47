@@ -156,6 +156,56 @@ LEVEL_DATA = {
         },
     },
 
+    {
+        title = "CYCLES",
+        w=7,
+        h=5,
+        cells = {
+            {L_MOUSE_EAST, nil, L_WALL, nil, nil, nil, nil},
+            {nil, nil, nil, nil, L_WALL, nil, L_CHEESE},
+            {L_PLAYER, L_WALL, L_MOUSE_NORTH, nil, nil, L_MOUSE_SOUTH, L_DOOR},
+            {nil, nil, nil, L_WALL, nil, nil, L_CHEESE},
+            {L_WALL, nil, L_MOUSE_WEST, nil, nil, L_WALL, nil},
+        }
+    },
+
+
+    {
+        title = "PRESS SHIFT",
+        w=5,
+        h=3,
+        cells = {
+            {nil, L_WALL, L_DOOR, L_WALL, nil},
+            {nil, L_PLAYER, L_MOUSE_EAST, nil, nil},
+            {nil, L_WALL, L_CHEESE, L_WALL, nil},
+        }
+    },
+
+    {
+        title = "AN ARROW IS REQUIRED",
+        w=9,
+        h=3,
+        cells = {
+            {nil, nil, nil, L_WALL, L_CHEESE, L_WALL, nil, nil, nil},
+            {L_MOUSE_NORTH, nil, nil, nil, L_PLAYER, nil, L_MOUSE_NORTH, nil, nil},
+            {nil, nil, nil, L_WALL, L_DOOR, L_WALL, nil, nil, nil},
+        },
+    },
+
+    {
+        title = "CORRIDORS OF CHEESE",
+        w=7,
+        h=6,
+        cells = {
+            {L_WALL, nil, nil, nil, L_WALL,L_DOOR,L_WALL},
+            {L_CHEESE, nil, L_WALL, nil, nil,nil,L_PLAYER},
+            {L_WALL, nil, L_WALL, nil, L_WALL,L_WALL,L_WALL},
+            {nil,nil,nil,nil,nil,L_MOUSE_WEST,L_WALL},
+            {nil,L_WALL,nil,L_WALL,L_WALL,nil,L_WALL},
+            {nil, nil,nil,L_WALL,nil,L_MOUSE_EAST,nil},
+        }
+    },
+
 
     {
         title = "ROUND AND ROUND",
@@ -168,17 +218,6 @@ LEVEL_DATA = {
             {L_MOUSE_SOUTH, nil, nil, L_CHEESE, nil, L_CHEESE},
             {nil, L_MOUSE_NORTH, nil, nil, nil, nil},
             {L_MOUSE_SOUTH, nil, L_WALL, L_CHEESE, nil, L_DOOR},
-        },
-    },
-
-    {
-        title = "PRESS SHIFT",
-        w=9,
-        h=3,
-        cells = {
-            {nil, nil, nil, L_WALL, L_CHEESE, L_WALL, nil, nil, nil},
-            {L_MOUSE_NORTH, nil, nil, nil, L_PLAYER, nil, L_MOUSE_NORTH, nil, nil},
-            {nil, nil, nil, L_WALL, L_DOOR, L_WALL, nil, nil, nil},
         },
     },
 
