@@ -9,6 +9,7 @@ WINDOW_TITLE = 'LD47 - stuck in a loop'
 
 SPRITES_PATH = 'img/sprites.png'
 TILES_PATH = 'img/tiles.png'
+FONT_PATH = 'img/font.png'
 
 SPRITE_W = 16
 SPRITE_H = 16

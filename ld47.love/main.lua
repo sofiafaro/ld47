@@ -15,6 +15,10 @@ function love.load()
     TILES_IMAGE = load_image(TILES_PATH)
     TILES_QUADS = make_quads(TILES_IMAGE)
 
+    FONT = love.graphics.newImageFont(FONT_PATH,
+        " AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz" ..
+        "1234567890")
+
     KEYSTATE = {}
     KEYPRESS = {}
 
